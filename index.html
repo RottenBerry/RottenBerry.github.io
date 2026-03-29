@@ -24,41 +24,49 @@
 <div class="sparkles"></div>
 
 <div class="floating-strawberries">
-<span>🍓</span><span>🍓</span><span>🍓</span><span>🍓</span><span>🍓</span><span>🍓</span>
+  <span>🍓</span>
+  <span>🍓</span>
+  <span>🍓</span>
+  <span>🍓</span>
+  <span>🍓</span>
+  <span>🍓</span>
 </div>
 
 <section id="home">
-<div class="site-title">
-<h1>Rotten's Berry Patch 🍓</h1>
-</div>
+  <div class="site-title">
+    <h1>Rotten's Berry Patch 🍓</h1>
+  </div>
 
-<div class="home-card">
-<img src="" id="home-image" class="hidden-image">
+  <div class="home-card">
+    <img src="" id="home-image" alt="Home image" class="hidden-image">
 
-<div class="home-intro">
-<h2 id="home-bio">Hi! I'm RottenBerry 🍓</h2>
-<p class="home-subtext" id="typing-text"></p>
-</div>
+    <div class="home-intro">
+      <h2 id="home-bio">Hi! I'm RottenBerry 🍓</h2>
+      <p class="home-subtext" id="typing-text"></p>
+    </div>
 
-<div id="home-admin" style="display:none;">
-<button id="edit-bio-btn">Edit Bio</button>
-<button id="change-home-image-btn">Change Home Image</button>
-<button id="remove-home-image-btn">Remove Home Image</button>
-</div>
-</div>
+    <div class="admin-buttons" id="home-admin" style="display:none;">
+      <button id="edit-bio-btn">Edit Bio</button>
+      <button id="change-home-image-btn">Change Home Image</button>
+      <button id="remove-home-image-btn">Remove Home Image</button>
+    </div>
+  </div>
 </section>
 
 <section id="creations">
-<h1>My Creations</h1>
-<div id="vu-admin" style="display:none;">
-<button id="add-vu-btn">Add New Creation</button>
-</div>
-<div class="gallery" id="vu-gallery"></div>
+  <h1>My Creations</h1>
+
+  <div class="admin-buttons" id="vu-admin" style="display:none;">
+    <button id="add-vu-btn">Add New Creation</button>
+  </div>
+
+  <div class="gallery" id="vu-gallery"></div>
 </section>
 
 <section id="imvu-customs">
-<h1>IMVU Customs</h1>
-<div class="text-box">
+  <h1>IMVU Customs</h1>
+
+  <div class="text-box">
 <pre>IMVU CUSTOMS 
 ✨Single Set — $25 or 25k credits 
 Includes:
@@ -97,20 +105,23 @@ When requesting a custom please fill this out
 🍓Tail Mesh Link: 
 🍓Accessory(ies) Link:
 🍓Clothing Link:</pre>
-</div>
+  </div>
 </section>
 
 <section id="adopts">
-<h1>Adopts</h1>
-<div id="adopt-admin" style="display:none;">
-<button id="add-adopt-btn">Add New Adopt</button>
-</div>
-<div class="gallery" id="adopt-gallery"></div>
+  <h1>Adopts</h1>
+
+  <div class="admin-buttons" id="adopt-admin" style="display:none;">
+    <button id="add-adopt-btn">Add New Adopt</button>
+  </div>
+
+  <div class="gallery" id="adopt-gallery"></div>
 </section>
 
 <section id="adopts-tos">
-<h1>Adopts TOS</h1>
-<div class="text-box">
+  <h1>Adopts TOS</h1>
+
+  <div class="text-box">
 <pre>ADOPTS ⸻ PRICING
 • Full Color Character: $15
 • Full Color with Shading: $25
@@ -132,23 +143,39 @@ NOT PERMITTED
 • NFT, blockchain, or AI training use
 • Refunds after payment
 ⸻</pre>
-</div>
+  </div>
 </section>
 
 <div id="lightbox" class="lightbox">
-<span class="close">&times;</span>
-<img class="lightbox-img">
-<p class="lightbox-caption"></p>
+  <span class="close">&times;</span>
+  <img class="lightbox-img" src="" alt="">
+  <p class="lightbox-caption"></p>
 </div>
 
 <div id="cursor-sparkles"></div>
 
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
 <script>
-// ADMIN MODE
+const firebaseConfig = {
+  apiKey: "AIzaSyD2H-7dqKGGtrIjNqFElFvnzpQpz3CSCe8",
+  authDomain: "rotten-berry-patch.firebaseapp.com",
+  projectId: "rotten-berry-patch",
+  storageBucket: "rotten-berry-patch.firebasestorage.app",
+  messagingSenderId: "551914913054",
+  appId: "1:551914913054:web:a64b484fe872ae0e7b5d0f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* ADMIN MODE */
 const params = new URLSearchParams(window.location.search);
 const isAdmin = params.get("edit") === "true";
 
-// ELEMENTS
+/* ELEMENTS */
 const homeImage = document.getElementById("home-image");
 const homeBio = document.getElementById("home-bio");
 
@@ -166,146 +193,240 @@ const addAdoptBtn = document.getElementById("add-adopt-btn");
 const vuGallery = document.getElementById("vu-gallery");
 const adoptGallery = document.getElementById("adopt-gallery");
 
-// SHOW ADMIN
-if(isAdmin){
-homeAdmin.style.display="flex";
-vuAdmin.style.display="flex";
-adoptAdmin.style.display="flex";
+if (isAdmin) {
+  homeAdmin.style.display = "flex";
+  vuAdmin.style.display = "flex";
+  adoptAdmin.style.display = "flex";
 }
 
-// STORAGE
-const STORAGE = {
-bio:"bio",
-img:"img",
-vu:"vu",
-adopt:"adopt"
-};
+/* HOME */
+function loadHome() {
+  db.collection("site").doc("home").get().then(doc => {
+    if (!doc.exists) return;
 
-function save(key,val){localStorage.setItem(key,JSON.stringify(val))}
-function load(key,def){return JSON.parse(localStorage.getItem(key)||JSON.stringify(def))}
+    const data = doc.data();
 
-// HOME
-homeBio.textContent = load(STORAGE.bio,"Hi! I'm RottenBerry 🍓");
+    if (data.bio) {
+      homeBio.textContent = data.bio;
+    }
 
-const savedImg = localStorage.getItem(STORAGE.img);
-if(savedImg){
-homeImage.src=savedImg;
-homeImage.classList.remove("hidden-image");
+    if (data.image) {
+      homeImage.src = data.image;
+      homeImage.classList.remove("hidden-image");
+    } else {
+      homeImage.src = "";
+      homeImage.classList.add("hidden-image");
+    }
+  }).catch(err => {
+    console.error("Error loading home:", err);
+  });
 }
 
-editBioBtn.onclick=()=>{
-let v=prompt("Edit bio:",homeBio.textContent);
-if(v){homeBio.textContent=v;save(STORAGE.bio,v);}
-};
+editBioBtn?.addEventListener("click", () => {
+  const newBio = prompt("Edit bio:", homeBio.textContent);
+  if (newBio === null) return;
 
-changeHomeImageBtn.onclick=()=>{
-let input=document.createElement("input");
-input.type="file";
-input.onchange=e=>{
-let reader=new FileReader();
-reader.onload=ev=>{
-localStorage.setItem(STORAGE.img,ev.target.result);
-homeImage.src=ev.target.result;
-homeImage.classList.remove("hidden-image");
-};
-reader.readAsDataURL(e.target.files[0]);
-};
-input.click();
-};
-
-removeHomeImageBtn.onclick=()=>{
-localStorage.removeItem(STORAGE.img);
-homeImage.classList.add("hidden-image");
-};
-
-// GALLERY
-function render(key,el){
-el.innerHTML="";
-load(key,[]).forEach((item,i)=>{
-let div=document.createElement("div");
-div.className="item";
-div.innerHTML=`<img src="${item.src}"><p class="caption">${item.cap}</p>`;
-
-if(isAdmin){
-let del=document.createElement("button");
-del.textContent="Delete";
-del.onclick=()=>{
-let arr=load(key,[]);
-arr.splice(i,1);
-save(key,arr);
-render(key,el);
-};
-div.appendChild(del);
-}
-
-el.appendChild(div);
-});
-}
-
-function add(btn,key,el,label){
-btn.onclick=()=>{
-let input=document.createElement("input");
-input.type="file";
-input.onchange=e=>{
-let reader=new FileReader();
-reader.onload=ev=>{
-let arr=load(key,[]);
-arr.push({src:ev.target.result,cap:label});
-save(key,arr);
-render(key,el);
-};
-reader.readAsDataURL(e.target.files[0]);
-};
-input.click();
-};
-}
-
-add(addVuBtn,STORAGE.vu,vuGallery,"New Creation");
-add(addAdoptBtn,STORAGE.adopt,adoptGallery,"New Adopt");
-
-render(STORAGE.vu,vuGallery);
-render(STORAGE.adopt,adoptGallery);
-
-// LIGHTBOX
-document.querySelectorAll(".gallery").forEach(g=>{
-g.addEventListener("click",e=>{
-if(e.target.tagName==="IMG"){
-document.getElementById("lightbox").style.display="block";
-document.querySelector(".lightbox-img").src=e.target.src;
-}
-});
+  db.collection("site").doc("home").set({
+    bio: newBio,
+    image: homeImage.classList.contains("hidden-image") ? "" : homeImage.src
+  }, { merge: true }).then(() => {
+    homeBio.textContent = newBio;
+  }).catch(err => {
+    console.error("Error saving bio:", err);
+    alert("Bio did not save.");
+  });
 });
 
-document.querySelector(".close").onclick=()=>{
-document.getElementById("lightbox").style.display="none";
-};
+changeHomeImageBtn?.addEventListener("click", () => {
+  const newUrl = prompt("Paste image link for home image:");
+  if (!newUrl) return;
 
-// STRAWBERRY TRAIL
-document.addEventListener("mousemove",e=>{
-let s=document.createElement("div");
-s.className="cursor-sparkle";
-s.textContent="🍓";
-s.style.left=e.clientX+"px";
-s.style.top=e.clientY+"px";
-document.body.appendChild(s);
-setTimeout(()=>s.remove(),800);
+  db.collection("site").doc("home").set({
+    bio: homeBio.textContent,
+    image: newUrl
+  }, { merge: true }).then(() => {
+    homeImage.src = newUrl;
+    homeImage.classList.remove("hidden-image");
+  }).catch(err => {
+    console.error("Error saving home image:", err);
+    alert("Home image did not save.");
+  });
 });
 
-// TYPING EFFECT
-const text="Here are some examples of my artwork and my IMVU creations ✨";
-const el=document.getElementById("typing-text");
-let i=0;
+removeHomeImageBtn?.addEventListener("click", () => {
+  db.collection("site").doc("home").set({
+    bio: homeBio.textContent,
+    image: ""
+  }, { merge: true }).then(() => {
+    homeImage.src = "";
+    homeImage.classList.add("hidden-image");
+  }).catch(err => {
+    console.error("Error removing home image:", err);
+    alert("Home image did not update.");
+  });
+});
 
-function type(){
-if(i<text.length){
-el.textContent+=text[i];
-i++;
-setTimeout(type,35);
-}
+/* GALLERIES */
+function loadGallery(collectionName, galleryEl) {
+  galleryEl.innerHTML = "";
+
+  db.collection(collectionName).get().then(snapshot => {
+    snapshot.forEach(doc => {
+      const item = doc.data();
+      const id = doc.id;
+
+      const card = document.createElement("div");
+      card.className = "item";
+      card.innerHTML = `
+        <img src="${item.src}" alt="${item.cap || "Image"}">
+        <p class="caption">${item.cap || "Untitled"}</p>
+      `;
+
+      if (isAdmin) {
+        const controls = document.createElement("div");
+        controls.className = "item-controls";
+
+        const renameBtn = document.createElement("button");
+        renameBtn.textContent = "Rename";
+
+        const replaceBtn = document.createElement("button");
+        replaceBtn.textContent = "Replace";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Delete";
+        deleteBtn.classList.add("danger-btn");
+
+        renameBtn.addEventListener("click", () => {
+          const updated = prompt("Rename this item:", item.cap || "");
+          if (updated === null) return;
+
+          db.collection(collectionName).doc(id).update({
+            cap: updated
+          }).then(() => loadGallery(collectionName, galleryEl))
+            .catch(err => {
+              console.error("Rename failed:", err);
+              alert("Rename failed.");
+            });
+        });
+
+        replaceBtn.addEventListener("click", () => {
+          const newUrl = prompt("Paste new image link:");
+          if (!newUrl) return;
+
+          db.collection(collectionName).doc(id).update({
+            src: newUrl
+          }).then(() => loadGallery(collectionName, galleryEl))
+            .catch(err => {
+              console.error("Replace failed:", err);
+              alert("Replace failed.");
+            });
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          const ok = confirm("Delete this item?");
+          if (!ok) return;
+
+          db.collection(collectionName).doc(id).delete()
+            .then(() => loadGallery(collectionName, galleryEl))
+            .catch(err => {
+              console.error("Delete failed:", err);
+              alert("Delete failed.");
+            });
+        });
+
+        controls.appendChild(renameBtn);
+        controls.appendChild(replaceBtn);
+        controls.appendChild(deleteBtn);
+        card.appendChild(controls);
+      }
+
+      galleryEl.appendChild(card);
+    });
+
+    refreshLightbox();
+  }).catch(err => {
+    console.error("Error loading gallery:", err);
+  });
 }
 
-el.classList.add("typing-cursor");
-type();
+function addImage(btn, collectionName, galleryEl, defaultCaption) {
+  btn?.addEventListener("click", () => {
+    const imageUrl = prompt("Paste your image link:");
+    if (!imageUrl) return;
+
+    const caption = prompt("Caption/name for this item:", defaultCaption) || defaultCaption;
+
+    db.collection(collectionName).add({
+      src: imageUrl,
+      cap: caption
+    }).then(() => {
+      loadGallery(collectionName, galleryEl);
+    }).catch(err => {
+      console.error("Add image failed:", err);
+      alert("Image did not save.");
+    });
+  });
+}
+
+addImage(addVuBtn, "vuImages", vuGallery, "New Creation");
+addImage(addAdoptBtn, "adoptImages", adoptGallery, "New Adopt");
+
+loadHome();
+loadGallery("vuImages", vuGallery);
+loadGallery("adoptImages", adoptGallery);
+
+/* LIGHTBOX */
+const lightbox = document.getElementById("lightbox");
+const lightboxImg = document.querySelector(".lightbox-img");
+const lightboxCaption = document.querySelector(".lightbox-caption");
+const closeBtn = document.querySelector(".close");
+
+function refreshLightbox() {
+  document.querySelectorAll(".gallery .item img").forEach(img => {
+    img.onclick = () => {
+      lightbox.style.display = "block";
+      lightboxImg.src = img.src;
+      lightboxCaption.textContent = img.parentElement.querySelector(".caption").textContent;
+    };
+  });
+}
+
+closeBtn.onclick = () => {
+  lightbox.style.display = "none";
+};
+
+lightbox.onclick = (e) => {
+  if (e.target === lightbox) {
+    lightbox.style.display = "none";
+  }
+};
+
+/* STRAWBERRY CURSOR TRAIL */
+document.addEventListener("mousemove", e => {
+  const s = document.createElement("div");
+  s.className = "cursor-sparkle";
+  s.textContent = "🍓";
+  s.style.left = e.clientX + "px";
+  s.style.top = e.clientY + "px";
+  document.body.appendChild(s);
+  setTimeout(() => s.remove(), 800);
+});
+
+/* TYPING EFFECT */
+const typingText = "Here are some examples of my artwork and my IMVU creations ✨";
+const typingEl = document.getElementById("typing-text");
+let typingIndex = 0;
+
+function typeText() {
+  if (typingIndex < typingText.length) {
+    typingEl.textContent += typingText.charAt(typingIndex);
+    typingIndex++;
+    setTimeout(typeText, 35);
+  }
+}
+
+typingEl.classList.add("typing-cursor");
+typeText();
 </script>
 
 </body>
